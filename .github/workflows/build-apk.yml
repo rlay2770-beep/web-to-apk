@@ -6,11 +6,11 @@ on:
       web_url:
         description: 'Website URL to convert'
         required: true
-        default: 'https://rlay2770-beep.github.io/kyawngar-pro/'
+        default: 'https://rlay2770-beep.github.io/web-to-apk/'
       app_name:
         description: 'App Name'
         required: true
-        default: 'Kyaw Ngar Pro'
+        default: 'WebToAPK App'
 
 jobs:
   build:
@@ -69,7 +69,7 @@ jobs:
           </resources>
           EOF
 
-          # 5. AndroidManifest.xml
+          # 5. AndroidManifest.xml (Icon ပါဝင်အောင် ပြင်ဆင်ထားသည်)
           cat << 'EOF' > android/app/src/main/AndroidManifest.xml
           <?xml version="1.0" encoding="utf-8"?>
           <manifest xmlns:android="http://schemas.android.com/apk/res/android"
@@ -78,6 +78,7 @@ jobs:
               <application
                   android:allowBackup="true"
                   android:label="@string/app_name"
+                  android:icon="@android:drawable/sym_def_app_icon"
                   android:supportsRtl="true"
                   android:theme="@android:style/Theme.Material.Light.NoActionBar">
                   <activity android:name=".MainActivity" android:exported="true">
