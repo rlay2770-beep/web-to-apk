@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="my">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WebToAPK - Website to Android App Converter</title>
+  <style>
+    body { font-family: sans-serif; background: #f4f6f9; padding: 20px; display: flex; justify-content: center; }
+    .card { background: #fff; padding: 25px; border-radius: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); width: 100%; max-width: 400px; }
+    h2 { text-align: center; color: #333; }
+    label { font-weight: bold; font-size: 14px; display: block; margin-top: 15px; }
+    input { width: 100%; padding: 10px; margin-top: 5px; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box; }
+    button { width: 100%; padding: 12px; background: #007bff; color: white; border: none; border-radius: 5px; margin-top: 20px; font-size: 16px; cursor: pointer; }
+    button:hover { background: #0056b3; }
+    .status { margin-top: 15px; text-align: center; font-size: 14px; font-weight: bold; color: #28a745; }
+  </style>
+</head>
+<body>
+
+<div class="card">
+  <h2>WebToAPK Converter</h2>
+  
+  <label for="appName">App အမည် (App Name):</label>
+  <input type="text" id="appName" placeholder="ဥပမာ - My Business App" required>
+
+  <label for="webUrl">ဝဘ်ဆိုက် လင့်ခ် (Website URL):</label>
+  <input type="url" id="webUrl" placeholder="https://example.com" required>
+
+  <button id="buildBtn">APK ထုတ်ယူမည် (Build APK)</button>
+
+  <div id="status" class="status"></div>
+</div>
+
+<!-- Firebase SDK -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+  import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyBty5eVHP_nYN5ZLLndstvVLa-ID_U-yRw",
+    authDomain: "web-to-apk-f1d27.firebaseapp.com",
+    databaseURL: "https://web-to-apk-f1d27-default-rtdb.firebaseio.com",
+    projectId: "web-to-apk-f1d27",
+    storageBucket: "web-to-apk-f1d27.firebasestorage.app",
+    messagingSenderId: "507392818612",
+    appId: "1:507392818612:web:481147e9e289f44b7b86e1",
+    measurementId: "G-DKHL3S0M5D"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+
+  document.getElementById("buildBtn").addEventListener("click", async () => {
+    const appName = document.getElementById("appName").value;
+    const webUrl = document.getElementById("webUrl").value;
+    const statusDiv = document.getElementById("status");
+
+    if (!appName || !webUrl) {
+      alert("ကျေးဇူးပြု၍ အချက်အလက်များကို ပြည့်စုံစွာ ဖြည့်စွက်ပါ");
+      return;
+    }
+
+    statusDiv.innerText = "အချက်အလက်များကို သိမ်းဆည်းနေပါသည်...";
+
+    try {
+      await addDoc(collection(db, "apk_requests"), {
+        appName: appName,
+        webUrl: webUrl,
+        createdAt: new Date()
+      });
+
+      statusDiv.innerText = "စနစ်သို့ တောင်းဆိုမှု ရောက်ရှိပါပြီ။ APK တည်ဆောက်မှုကို စတင်နေပါသည်။";
+    } catch (e) {
+      console.error("Error adding document: ", e);
+      statusDiv.innerText = "မအောင်မြင်ပါ၊ ပြန်လည် ကြိုးစားပါ။";
+    }
+  });
+</script>
+
+</body>
+  </html>
+  
