@@ -6,11 +6,11 @@ on:
       web_url:
         description: 'Website URL to convert'
         required: true
-        default: 'https://example.com'
+        default: 'https://rlay2770-beep.github.io/kyawngar-pro/'
       app_name:
         description: 'App Name'
         required: true
-        default: 'WebToAPK App'
+        default: 'Kyaw Ngar Pro'
 
 jobs:
   build:
@@ -26,19 +26,94 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
 
-      - name: Setup Android SDK
-        uses: android-actions/setup-android@v3
-
-      - name: Inject Website URL & App Name
+      - name: Create Native WebToAPK Android Project
         run: |
-          echo "Injecting URL: ${{ github.event.inputs.web_url }}"
-          echo "Injecting App Name: ${{ github.event.inputs.app_name }}"
-          
-          # Replace App Name in strings.xml
-          sed -i 's|WebToAPK App|${{ github.event.inputs.app_name }}|g' android/app/src/main/res/values/strings.xml || true
-          
-          # Replace Website URL in MainActivity.java
-          sed -i 's|https://example.com|${{ github.event.inputs.web_url }}|g' android/app/src/main/java/com/example/webtoapk/MainActivity.java || true
+          mkdir -p android/app/src/main/java/com/example/webtoapk
+          mkdir -p android/app/src/main/res/values
+
+          # 1. Root build.gradle
+          cat << 'EOF' > android/build.gradle
+          buildscript {
+              repositories { google(); mavenCentral() }
+              dependencies { classpath 'com.android.tools.build:gradle:8.1.1' }
+          }
+          allprojects { repositories { google(); mavenCentral() } }
+          EOF
+
+          # 2. settings.gradle
+          cat << 'EOF' > android/settings.gradle
+          rootProject.name = "WebToAPK"
+          include ':app'
+          EOF
+
+          # 3. app/build.gradle
+          cat << 'EOF' > android/app/build.gradle
+          apply plugin: 'com.android.application'
+          android {
+              namespace 'com.example.webtoapk'
+              compileSdk 34
+              defaultConfig {
+                  applicationId "com.example.webtoapk"
+                  minSdk 24
+                  targetSdk 34
+                  versionCode 1
+                  versionName "1.0"
+              }
+          }
+          EOF
+
+          # 4. strings.xml
+          cat << 'EOF' > android/app/src/main/res/values/strings.xml
+          <resources>
+              <string name="app_name">${{ github.event.inputs.app_name }}</string>
+          </resources>
+          EOF
+
+          # 5. AndroidManifest.xml
+          cat << 'EOF' > android/app/src/main/AndroidManifest.xml
+          <?xml version="1.0" encoding="utf-8"?>
+          <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+              package="com.example.webtoapk">
+              <uses-permission android:name="android.permission.INTERNET" />
+              <application
+                  android:allowBackup="true"
+                  android:label="@string/app_name"
+                  android:supportsRtl="true"
+                  android:theme="@android:style/Theme.Material.Light.NoActionBar">
+                  <activity android:name=".MainActivity" android:exported="true">
+                      <intent-filter>
+                          <action android:name="android.intent.action.MAIN" />
+                          <category android:name="android.intent.category.LAUNCHER" />
+                      </intent-filter>
+                  </activity>
+              </application>
+          </manifest>
+          EOF
+
+          # 6. MainActivity.java
+          cat << 'EOF' > android/app/src/main/java/com/example/webtoapk/MainActivity.java
+          package com.example.webtoapk;
+
+          import android.os.Bundle;
+          import android.webkit.WebSettings;
+          import android.webkit.WebView;
+          import android.webkit.WebViewClient;
+          import android.app.Activity;
+
+          public class MainActivity extends Activity {
+              @Override
+              protected void onCreate(Bundle savedInstanceState) {
+                  super.onCreate(savedInstanceState);
+                  WebView webView = new WebView(this);
+                  setContentView(webView);
+                  WebSettings webSettings = webView.getSettings();
+                  webSettings.setJavaScriptEnabled(true);
+                  webSettings.setDomStorageEnabled(true);
+                  webView.setWebViewClient(new WebViewClient());
+                  webView.loadUrl("${{ github.event.inputs.web_url }}");
+              }
+          }
+          EOF
 
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v3
