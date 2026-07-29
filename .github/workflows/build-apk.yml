@@ -6,11 +6,11 @@ on:
       web_url:
         description: 'Website URL to convert'
         required: true
-        default: 'https://rlay2770-beep.github.io/my_social_app/'
+        default: 'https://rlay2770-beep.github.io/web-to-apk/'
       app_name:
         description: 'App Name'
         required: true
-        default: 'my_social_app'
+        default: 'WebToApk'
 
 jobs:
   build:
