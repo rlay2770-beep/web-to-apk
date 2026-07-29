@@ -4,13 +4,13 @@ on:
   workflow_dispatch:
     inputs:
       web_url:
-        description: 'Website URL (e.g. https://example.com)'
+        description: 'Website URL to convert'
         required: true
-        default: 'https://rlay2770-beep.github.io/kyawngar-pro/'
+        default: 'https://rlay2770-beep.github.io/my_social_app/'
       app_name:
-        description: 'App Name (e.g. Kyaw Ngar Pro)'
+        description: 'App Name'
         required: true
-        default: 'Kyaw Ngar Pro'
+        default: 'My Social App'
 
 jobs:
   build:
